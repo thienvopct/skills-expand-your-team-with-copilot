@@ -1,15 +1,12 @@
 """
-MongoDB database configuration and setup for Mergington High School API
+In-memory database configuration and setup for Mergington High School API
 """
 
-from pymongo import MongoClient
 from argon2 import PasswordHasher
 
-# Connect to MongoDB
-client = MongoClient('mongodb://localhost:27017/')
-db = client['mergington_high']
-activities_collection = db['activities']
-teachers_collection = db['teachers']
+# In-memory database
+activities_db = {}
+teachers_db = {}
 
 # Methods
 def hash_password(password):
@@ -19,16 +16,37 @@ def hash_password(password):
 
 def init_database():
     """Initialize database if empty"""
-
+    global activities_db, teachers_db
+    
     # Initialize activities if empty
-    if activities_collection.count_documents({}) == 0:
-        for name, details in initial_activities.items():
-            activities_collection.insert_one({"_id": name, **details})
+    if not activities_db:
+        activities_db.update(initial_activities)
             
     # Initialize teacher accounts if empty
-    if teachers_collection.count_documents({}) == 0:
+    if not teachers_db:
         for teacher in initial_teachers:
-            teachers_collection.insert_one({"_id": teacher["username"], **teacher})
+            teachers_db[teacher["username"]] = teacher
+
+# Helper functions for database operations
+def get_all_activities():
+    """Get all activities"""
+    return activities_db
+
+def get_activity(activity_name):
+    """Get a specific activity"""
+    return activities_db.get(activity_name)
+
+def add_participant_to_activity(activity_name, email):
+    """Add a participant to an activity"""
+    if activity_name in activities_db:
+        if email not in activities_db[activity_name]["participants"]:
+            activities_db[activity_name]["participants"].append(email)
+            return True
+    return False
+
+def get_teacher(username):
+    """Get a teacher by username"""
+    return teachers_db.get(username)
 
 # Initial database if empty
 initial_activities = {

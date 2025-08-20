@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 from typing import Dict, Any
 import hashlib
 
-from ..database import teachers_collection
+from ..database import get_teacher
 
 router = APIRouter(
     prefix="/auth",
@@ -24,7 +24,7 @@ def login(username: str, password: str) -> Dict[str, Any]:
     hashed_password = hash_password(password)
     
     # Find the teacher in the database
-    teacher = teachers_collection.find_one({"_id": username})
+    teacher = get_teacher(username)
     
     if not teacher or teacher["password"] != hashed_password:
         raise HTTPException(status_code=401, detail="Invalid username or password")
@@ -39,7 +39,7 @@ def login(username: str, password: str) -> Dict[str, Any]:
 @router.get("/check-session")
 def check_session(username: str) -> Dict[str, Any]:
     """Check if a session is valid by username"""
-    teacher = teachers_collection.find_one({"_id": username})
+    teacher = get_teacher(username)
     
     if not teacher:
         raise HTTPException(status_code=404, detail="Teacher not found")
