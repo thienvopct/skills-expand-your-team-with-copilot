@@ -524,6 +524,66 @@ footer {
   font-size: 1rem;
 }
 
+/* Advanced Search Styles */
+.advanced-search-container {
+  margin-bottom: 15px;
+}
+
+.advanced-search-container details {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px;
+  background: var(--surface);
+}
+
+.advanced-search-container summary {
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 0.85rem;
+  color: var(--primary);
+  user-select: none;
+  padding: 4px 0;
+}
+
+.advanced-search-container summary:hover {
+  color: var(--primary-light);
+}
+
+.advanced-options {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-light);
+}
+
+.filter-group {
+  margin-bottom: 12px;
+}
+
+.filter-group label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.filter-group select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  background: var(--surface);
+  color: var(--text-primary);
+  transition: border-color 0.2s ease;
+}
+
+.filter-group select:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 2px rgba(83, 75, 174, 0.1);
+}
+
 .filter-container {
   margin-bottom: 15px;
   display: flex;

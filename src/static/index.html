@@ -42,6 +42,48 @@
               </button>
             </div>
 
+            <!-- Advanced Search Options -->
+            <div class="advanced-search-container">
+              <details>
+                <summary>Advanced Search Options</summary>
+                <div class="advanced-options">
+                  <!-- Capacity Filter -->
+                  <div class="filter-group">
+                    <label for="capacity-filter">Available Spots:</label>
+                    <select id="capacity-filter">
+                      <option value="">Any</option>
+                      <option value="1-5">1-5 spots</option>
+                      <option value="6-10">6-10 spots</option>
+                      <option value="11-15">11-15 spots</option>
+                      <option value="16+">16+ spots</option>
+                    </select>
+                  </div>
+
+                  <!-- Enrollment Filter -->
+                  <div class="filter-group">
+                    <label for="enrollment-filter">Enrollment Level:</label>
+                    <select id="enrollment-filter">
+                      <option value="">Any</option>
+                      <option value="low">Low (0-25% full)</option>
+                      <option value="medium">Medium (26-75% full)</option>
+                      <option value="high">High (76%+ full)</option>
+                    </select>
+                  </div>
+
+                  <!-- Sort Options -->
+                  <div class="filter-group">
+                    <label for="sort-options">Sort by:</label>
+                    <select id="sort-options">
+                      <option value="name">Activity Name</option>
+                      <option value="enrollment">Enrollment Count</option>
+                      <option value="available">Available Spots</option>
+                      <option value="time">Schedule Time</option>
+                    </select>
+                  </div>
+                </div>
+              </details>
+            </div>
+
             <div class="filter-container">
               <div class="filter-label">Filter by category:</div>
               <div class="category-filters" id="category-filters">

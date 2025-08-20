@@ -14,6 +14,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const categoryFilters = document.querySelectorAll(".category-filter");
   const dayFilters = document.querySelectorAll(".day-filter");
   const timeFilters = document.querySelectorAll(".time-filter");
+  
+  // Advanced search elements
+  const capacityFilter = document.getElementById("capacity-filter");
+  const enrollmentFilter = document.getElementById("enrollment-filter");
+  const sortOptions = document.getElementById("sort-options");
 
   // Authentication elements
   const loginButton = document.getElementById("login-button");
@@ -40,6 +45,11 @@ document.addEventListener("DOMContentLoaded", () => {
   let searchQuery = "";
   let currentDay = "";
   let currentTimeRange = "";
+  
+  // Advanced search state
+  let currentCapacityFilter = "";
+  let currentEnrollmentFilter = "";
+  let currentSortOption = "name";
 
   // Authentication state
   let currentUser = null;
@@ -451,8 +461,31 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Activity passed all filters, add to filtered list
-      filteredActivities[name] = details;
+      // Calculate capacity info for advanced filters
+      const currentEnrollment = details.participants ? details.participants.length : 0;
+      const maxParticipants = details.max_participants || 0;
+      const availableSpots = maxParticipants - currentEnrollment;
+      const enrollmentPercentage = maxParticipants > 0 ? (currentEnrollment / maxParticipants) * 100 : 0;
+
+      // Apply capacity filter
+      if (currentCapacityFilter) {
+        const passes = applyCapacityFilter(availableSpots, currentCapacityFilter);
+        if (!passes) return;
+      }
+
+      // Apply enrollment filter
+      if (currentEnrollmentFilter) {
+        const passes = applyEnrollmentFilter(enrollmentPercentage, currentEnrollmentFilter);
+        if (!passes) return;
+      }
+
+      // Activity passed all filters, add to filtered list with additional info for sorting
+      filteredActivities[name] = {
+        ...details,
+        _currentEnrollment: currentEnrollment,
+        _availableSpots: availableSpots,
+        _enrollmentPercentage: enrollmentPercentage
+      };
     });
 
     // Check if there are any results
@@ -466,9 +499,55 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    // Display filtered activities
-    Object.entries(filteredActivities).forEach(([name, details]) => {
+    // Sort activities based on current sort option
+    const sortedActivities = sortActivities(filteredActivities, currentSortOption);
+
+    // Display sorted activities
+    sortedActivities.forEach(([name, details]) => {
       renderActivityCard(name, details);
+    });
+  }
+
+  // Helper function to apply capacity filter
+  function applyCapacityFilter(availableSpots, filter) {
+    switch (filter) {
+      case "1-5": return availableSpots >= 1 && availableSpots <= 5;
+      case "6-10": return availableSpots >= 6 && availableSpots <= 10;
+      case "11-15": return availableSpots >= 11 && availableSpots <= 15;
+      case "16+": return availableSpots >= 16;
+      default: return true;
+    }
+  }
+
+  // Helper function to apply enrollment filter
+  function applyEnrollmentFilter(enrollmentPercentage, filter) {
+    switch (filter) {
+      case "low": return enrollmentPercentage <= 25;
+      case "medium": return enrollmentPercentage > 25 && enrollmentPercentage <= 75;
+      case "high": return enrollmentPercentage > 75;
+      default: return true;
+    }
+  }
+
+  // Helper function to sort activities
+  function sortActivities(activities, sortBy) {
+    const entries = Object.entries(activities);
+    
+    return entries.sort(([nameA, detailsA], [nameB, detailsB]) => {
+      switch (sortBy) {
+        case "name":
+          return nameA.localeCompare(nameB);
+        case "enrollment":
+          return detailsB._currentEnrollment - detailsA._currentEnrollment;
+        case "available":
+          return detailsB._availableSpots - detailsA._availableSpots;
+        case "time":
+          const timeA = detailsA.schedule_details?.start_time || "99:99";
+          const timeB = detailsB.schedule_details?.start_time || "99:99";
+          return timeA.localeCompare(timeB);
+        default:
+          return nameA.localeCompare(nameB);
+      }
     });
   }
 
@@ -639,6 +718,22 @@ document.addEventListener("DOMContentLoaded", () => {
       currentTimeRange = button.dataset.time;
       fetchActivities();
     });
+  });
+
+  // Add event listeners for advanced search filters
+  capacityFilter.addEventListener("change", (event) => {
+    currentCapacityFilter = event.target.value;
+    displayFilteredActivities();
+  });
+
+  enrollmentFilter.addEventListener("change", (event) => {
+    currentEnrollmentFilter = event.target.value;
+    displayFilteredActivities();
+  });
+
+  sortOptions.addEventListener("change", (event) => {
+    currentSortOption = event.target.value;
+    displayFilteredActivities();
   });
 
   // Open registration modal
